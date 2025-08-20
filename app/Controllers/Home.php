@@ -6,9 +6,16 @@ class Home extends BaseController
 {
     public function index()
     {
+        return view('index');
+    }
 
-        $data['content'] = view('home_view');
+    public function about()
+    {
+        return view('about');
+    }
 
-        return view('template', $data);
+    public function contact()
+    {
+        return view('contact');
     }
 }
