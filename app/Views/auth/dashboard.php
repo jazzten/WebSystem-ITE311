@@ -1,5 +1,5 @@
 <div class="container mt-5">
-    <!-- Welcome Header -->
+
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="d-flex justify-content-between align-items-center">
@@ -17,7 +17,7 @@
     </div>
 
     <?php if ($role === 'admin'): ?>
-        <!-- ADMIN DASHBOARD -->
+
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
                 <div class="card text-white bg-primary h-100">
@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <!-- Recent Users Table -->
+
         <div class="row">
             <div class="col-md-12">
                 <div class="card shadow-sm">
@@ -93,7 +93,7 @@
         </div>
 
     <?php elseif ($role === 'teacher'): ?>
-        <!-- TEACHER DASHBOARD -->
+
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
                 <div class="card border-success h-100">
@@ -140,7 +140,7 @@
         </div>
 
     <?php elseif ($role === 'student'): ?>
-        <!-- STUDENT DASHBOARD -->
+
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
                 <div class="card border-info h-100">
@@ -187,7 +187,7 @@
         </div>
 
     <?php else: ?>
-        <!-- ERROR STATE -->
+
         <div class="alert alert-danger">
             <h4>Invalid User Role</h4>
             <p>Your account has an invalid role. Please contact administrator.</p>
