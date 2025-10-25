@@ -82,8 +82,7 @@
             <!-- Submit Button -->
             <button type="submit"
                 class="w-full bg-gradient-to-r from-green-500 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-teal-700 shadow-lg transition">
-                <i class="fas fa-user-plus mr-2"></i> Create Account
-            </button>
+                <i class="fas fa-user-plus mr-2"></i> Create Account</button>
         </form>
 
         <!-- Footer -->

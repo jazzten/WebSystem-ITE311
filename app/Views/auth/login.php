@@ -12,55 +12,64 @@
 
     <style>
       /* Small enhancement for focus outline */
-      :focus { outline: 3px solid rgba(99,102,241,0.18); outline-offset: 2px; }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 min-h-screen flex items-center justify-center p-4">
+        :focus { outline: 3px solid rgba(99,102,241,0.18); outline-offset: 2px; }
 
-  <main class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8" role="main" aria-labelledby="login-title">
+      /* Fade-out animation for flash message */
+        .fade-out {
+        transition: opacity 0.8s ease;
+        opacity: 0;
+    }
+        </style>
+    </head>
+        <body class="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 min-h-screen flex items-center justify-center p-4">
+
+    <main class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8" role="main" aria-labelledby="login-title">
     <header class="text-center mb-6">
-      <div class="bg-gradient-to-r from-blue-600 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
         <i class="fas fa-graduation-cap text-white text-3xl" aria-hidden="true"></i>
-      </div>
-      <h1 id="login-title" class="text-3xl font-bold text-gray-800 mb-1">LMS</h1>
-      <p class="text-gray-600">School Management System</p>
+    </div>
+    <h1 id="login-title" class="text-3xl font-bold text-gray-800 mb-1">LMS</h1>
+        <p class="text-gray-600">School Management System</p>
     </header>
 
-    <!-- ARIA live region for flash messages -->
+    <!-- Flash Messages -->
     <div aria-live="polite" aria-atomic="true" class="mb-4">
-      <?php if (session()->getFlashdata('error')): ?>
+    <?php if (session()->getFlashdata('error')): ?>
         <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4" role="alert">
-          <?= esc(session()->getFlashdata('error')) ?>
+        <?= esc(session()->getFlashdata('error')) ?>
         </div>
-      <?php endif; ?>
+    <?php endif; ?>
 
-      <?php if (session()->getFlashdata('success')): ?>
-        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-4" role="status">
-          <?= esc(session()->getFlashdata('success')) ?>
+    <?php if (session()->getFlashdata('success')): ?>
+        <div id="successAlert" 
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4 text-sm shadow-md flex items-center justify-center gap-2">
+        <i class="fas fa-check-circle"></i>
+    <span><?= esc(session()->getFlashdata('success')) ?></span>
         </div>
-      <?php endif; ?>
+        <?php endif; ?>
 
-      <?php if (session()->getFlashdata('errors')): ?>
+    <?php if (session()->getFlashdata('errors')): ?>
         <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4" role="alert">
-          <ul class="list-disc list-inside text-sm">
+        <ul class="list-disc list-inside text-sm">
             <?php foreach (session()->getFlashdata('errors') as $error): ?>
-              <li><?= esc($error) ?></li>
+            <li><?= esc($error) ?></li>
             <?php endforeach; ?>
-          </ul>
+        </ul>
         </div>
-      <?php endif; ?>
+    <?php endif; ?>
     </div>
 
+    <!-- Login Form -->
     <form id="loginForm" action="<?= base_url('login') ?>" method="post" class="space-y-6" novalidate>
-      <?= csrf_field() ?>
+    <?= csrf_field() ?>
 
-      <div>
+    <div>
         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
         <div class="relative">
-          <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+            <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
             <i class="fas fa-envelope"></i>
-          </span>
-          <input
+        </span>
+        <input
             id="email"
             type="email"
             name="email"
@@ -71,17 +80,17 @@
             aria-label="Email"
             placeholder="you@example.com"
             class="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-          />
+        />
         </div>
-      </div>
+    </div>
 
-      <div>
+        <div>
         <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
         <div class="relative">
-          <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+            <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
             <i class="fas fa-lock"></i>
-          </span>
-          <input
+            </span>
+            <input
             id="password"
             type="password"
             name="password"
@@ -91,60 +100,60 @@
             aria-label="Password"
             placeholder="Enter your password"
             class="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
-          />
-          <button
+        />
+        <button
             type="button"
             id="togglePassword"
             aria-label="Show password"
             class="absolute inset-y-0 right-2 flex items-center px-3 text-gray-500 hover:text-gray-700"
-          >
+        >
             <i class="far fa-eye"></i>
-          </button>
+        </button>
         </div>
-      </div>
+        </div>
 
-      <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between">
         <label class="inline-flex items-center text-sm text-gray-700">
-          <input type="checkbox" name="remember" class="form-checkbox h-4 w-4 text-purple-600" />
-          <span class="ml-2">Remember me</span>
+            <input type="checkbox" name="remember" class="form-checkbox h-4 w-4 text-purple-600" />
+            <span class="ml-2">Remember me</span>
         </label>
 
         <a href="<?= base_url('forgot-password') ?>" class="text-sm text-purple-600 hover:underline">Forgot password?</a>
-      </div>
+            </div>
 
-      <div>
+            <div>
         <button
-          type="submit"
-          id="submitBtn"
-          class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 shadow-lg disabled:opacity-60"
+            type="submit"
+            id="submitBtn"
+            class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 shadow-lg disabled:opacity-60"
         >
-          Sign In
-        </button>
-      </div>
+            Sign In
+                </button>
+        </div>
     </form>
 
     <div class="mt-6 text-center">
-      <p class="text-gray-600">
+        <p class="text-gray-600">
         Don't have an account?
         <a href="<?= base_url('register') ?>" class="text-purple-600 font-semibold hover:underline">
-          Register here
-        </a>
-      </p>
+                Register here
+            </a>
+        </p>
     </div>
 
     <hr class="my-6 border-t border-gray-200">
 
     <section class="text-center text-xs text-gray-600">
-      <p class="font-semibold mb-2">Demo Credentials</p>
-      <p>👨‍💼 Admin: <span class="font-medium">admin@example.com</span> / <span class="font-medium">admin123</span></p>
-      <p>👨‍🏫 Teacher: <span class="font-medium">teacher@example.com</span> / <span class="font-medium">teacher123</span></p>
-      <p>👨‍🎓 Student: <span class="font-medium">student@example.com</span> / <span class="font-medium">student123</span></p>
-    </section>
+        <p class="font-semibold mb-2">Demo Credentials</p>
+        <p>👨‍💼 Admin: <span class="font-medium">admin@example.com</span> / <span class="font-medium">admin123</span></p>
+        <p>👨‍🏫 Teacher: <span class="font-medium">teacher@example.com</span> / <span class="font-medium">teacher123</span></p>
+        <p>👨‍🎓 Student: <span class="font-medium">student@example.com</span> / <span class="font-medium">student123</span></p>
+        </section>
 
-    <noscript class="block mt-4 text-sm text-red-600">
-      JavaScript is required for some features on this page (show/hide password, client-side validation).
-    </noscript>
-  </main>
+        <noscript class="block mt-4 text-sm text-red-600">
+            JavaScript is required for some features on this page (show/hide password, client-side validation).
+        </noscript>
+    </main>
 
     <script>
     // Toggle password visibility
@@ -162,15 +171,14 @@
         });
     })();
 
-    // Prevent double submit and do simple client-side check
-    (function () {
+        // Prevent double submit
+            (function () {
         const form = document.getElementById('loginForm');
         const submit = document.getElementById('submitBtn');
 
-        if (!form || !submit) return;
+    if (!form || !submit) return;
 
-        form.addEventListener('submit', (e) => {
-        // Basic validation before sending to server
+    form.addEventListener('submit', (e) => {
         const email = form.email.value.trim();
         const password = form.password.value;
 
@@ -180,10 +188,21 @@
             return;
         }
 
-        // disable button to prevent multiple clicks
+
         submit.disabled = true;
         });
     })();
+
+  // ✅ Auto fade out success alert
+    document.addEventListener("DOMContentLoaded", () => {
+        const alert = document.getElementById("successAlert");
+        if (alert) {
+            setTimeout(() => {
+                alert.classList.add("fade-out");
+                setTimeout(() => alert.remove(), 800);
+            }, 3000);
+        }
+    });
     </script>
 </body>
 </html>

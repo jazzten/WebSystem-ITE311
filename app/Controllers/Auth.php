@@ -78,10 +78,12 @@ class Auth extends Controller
         if (session()->get('isLoggedIn')) {
             return redirect()->to(base_url('dashboard'));
         }
+
         return view('auth/register');
     }
 
     public function registerPost()
+
     {
 
         $rules = [
@@ -136,27 +138,22 @@ class Auth extends Controller
 
         try {
             if ($userModel->insert($data)) {
-                $userId = $userModel->getInsertID();
-                $user = $userModel->find($userId);
-
-                // Auto login after registration
-                $sessionData = [
-                    'id' => $user['id'],
-                    'name' => $user['name'],
-                    'email' => $user['email'],
-                    'role' => $user['role'],
-                    'isLoggedIn' => true,
-                ];
-
-                session()->set($sessionData);
-
-                return redirect()->to(base_url('dashboard'))->with('success', 'Registration successful!');
+                // ✅ Redirect to login page (no auto-login)
+                return redirect()
+                    ->to(base_url('login'))
+                    ->with('success', 'Account created successfully! Please sign in.');
             } else {
-                return redirect()->back()->withInput()->with('error', 'Registration failed. Please try again.');
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', 'Registration failed. Please try again.');
             }
         } catch (\Exception $e) {
             log_message('error', 'Registration error: ' . $e->getMessage());
-            return redirect()->back()->withInput()->with('error', 'An error occurred: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 

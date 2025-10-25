@@ -1,23 +1,101 @@
-<div class="container mt-5">
+<!-- Styles for Dashboard -->
+<style>
+    body {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        min-height: 100vh;
+    }
+    
+    .top-nav {
+        background: rgba(30, 41, 59, 0.95);
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .brand-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .brand-icon {
+        font-size: 2rem;
+    }
+    
+    .nav-buttons .btn {
+        margin-left: 0.5rem;
+    }
+</style>
+
+<!-- Top Navigation Bar -->
+<div class="top-nav">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="brand-section text-white">
+                <span class="brand-icon">🎓</span>
+                <div>
+                    <h4 class="mb-0">LMS</h4>
+                    <small class="text-muted">Hello, <?= esc($username) ?> (<?= esc(ucfirst($role)) ?>)</small>
+                </div>
+            </div>
+            
+            <?php if ($role === 'admin'): ?>
+                <div class="nav-buttons">
+                    <a href="<?= base_url('admin/users') ?>" class="btn btn-outline-light">
+                        <i class="bi bi-people"></i> Manage Users
+                    </a>
+                    <a href="<?= base_url('admin/reports') ?>" class="btn btn-outline-light">
+                        <i class="bi bi-file-bar-graph"></i> Reports
+                    </a>
+                    <a href="<?= base_url('logout') ?>" class="btn btn-danger">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            <?php elseif ($role === 'teacher'): ?>
+                <div class="nav-buttons">
+                    <a href="#" class="btn btn-outline-light">
+                        <i class="bi bi-journal-text"></i> My Classes
+                    </a>
+                    <a href="<?= base_url('logout') ?>" class="btn btn-danger">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            <?php elseif ($role === 'student'): ?>
+                <div class="nav-buttons">
+                    <a href="#" class="btn btn-outline-light">
+                        <i class="bi bi-book"></i> My Classes
+                    </a>
+                    <a href="<?= base_url('logout') ?>" class="btn btn-danger">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard Content -->
+
+    <div class="container mt-5">
 
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="mb-1">Welcome, <?= esc($username) ?>! 👋</h2>
-                    <p class="text-muted mb-0">
+                    <h2 class="mb-1 text-white">Welcome, <?= esc($username) ?>! 👋</h2>
+                    <p class="text-white-50 mb-0">
                         <span class="badge bg-<?= $role === 'admin' ? 'danger' : ($role === 'teacher' ? 'success' : 'primary') ?>">
                             <?= esc(ucfirst($role)) ?>
                         </span>
                     </p>
                 </div>
             </div>
-            <hr>
+            <hr class="bg-white">
         </div>
     </div>
 
     <?php if ($role === 'admin'): ?>
-
+        <!-- ADMIN DASHBOARD -->
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
                 <div class="card text-white bg-primary h-100">
@@ -45,7 +123,7 @@
             </div>
         </div>
 
-
+        <!-- Recent Users Table -->
         <div class="row">
             <div class="col-md-12">
                 <div class="card shadow-sm">
@@ -93,10 +171,10 @@
         </div>
 
     <?php elseif ($role === 'teacher'): ?>
-
+        <!-- TEACHER DASHBOARD -->
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
-                <div class="card border-success h-100">
+                <div class="card border-success h-100 bg-white">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-success">My Classes</h6>
                         <h2 class="card-title"><?= count($my_classes) ?></h2>
@@ -105,7 +183,7 @@
                 </div>
             </div>
             <div class="col-md-4 mb-3">
-                <div class="card border-primary h-100">
+                <div class="card border-primary h-100 bg-white">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-primary">Students</h6>
                         <h2 class="card-title"><?= esc($total_students) ?></h2>
@@ -114,7 +192,7 @@
                 </div>
             </div>
             <div class="col-md-4 mb-3">
-                <div class="card border-warning h-100">
+                <div class="card border-warning h-100 bg-white">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-warning">Assignments</h6>
                         <h2 class="card-title"><?= esc($total_assignments) ?></h2>
@@ -140,10 +218,10 @@
         </div>
 
     <?php elseif ($role === 'student'): ?>
-
+        <!-- STUDENT DASHBOARD -->
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
-                <div class="card border-info h-100">
+                <div class="card border-info h-100 bg-white">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-info">Enrolled Classes</h6>
                         <h2 class="card-title"><?= count($enrolled_classes) ?></h2>
@@ -152,7 +230,7 @@
                 </div>
             </div>
             <div class="col-md-4 mb-3">
-                <div class="card border-success h-100">
+                <div class="card border-success h-100 bg-white">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-success">Average Grade</h6>
                         <h2 class="card-title">--</h2>
@@ -161,7 +239,7 @@
                 </div>
             </div>
             <div class="col-md-4 mb-3">
-                <div class="card border-warning h-100">
+                <div class="card border-warning h-100 bg-white">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-warning">Pending Tasks</h6>
                         <h2 class="card-title"><?= count($recent_grades) ?></h2>
@@ -187,7 +265,7 @@
         </div>
 
     <?php else: ?>
-
+        <!-- ERROR STATE -->
         <div class="alert alert-danger">
             <h4>Invalid User Role</h4>
             <p>Your account has an invalid role. Please contact administrator.</p>

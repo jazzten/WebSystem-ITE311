@@ -18,3 +18,5 @@ $routes->post('register', 'Auth::registerPost');
 $routes->get('logout', 'Auth::logout');
 
 $routes->get('dashboard', 'Dashboard::index');
+
+
