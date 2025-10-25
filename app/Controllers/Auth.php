@@ -4,83 +4,165 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use CodeIgniter\Controller;
 
-class Auth extends BaseController
+class Auth extends Controller
 {
     public function login()
     {
-        helper(['form']);
+        // If already logged in, redirect to dashboard
+        if (session()->get('isLoggedIn')) {
+            return redirect()->to(base_url('dashboard'));
+        }
         return view('auth/login');
     }
 
     public function loginPost()
     {
-        helper(['form']);
-        $session = session();
-        $model = new UserModel();
+        $validation = \Config\Services::validation();
 
-        $email = $this->request->getVar('email');
-        $password = $this->request->getVar('password');
+        $rules = [
+            'email' => [
+                'label' => 'Email',
+                'rules' => 'required|valid_email',
+                'errors' => [
+                    'required' => 'Email is required',
+                    'valid_email' => 'Please enter a valid email'
+                ]
+            ],
+            'password' => [
+                'label' => 'Password',
+                'rules' => 'required|min_length[6]',
+                'errors' => [
+                    'required' => 'Password is required',
+                    'min_length' => 'Password must be at least 6 characters'
+                ]
+            ]
+        ];
 
-        $data = $model->where('email', $email)->first();
-
-        if ($data) {
-            $pass = $data['password'];
-            if (password_verify($password, $pass)) {
-                $sessionData = [
-                    'id'    => $data['id'],
-                    'name'  => $data['name'],
-                    'email' => $data['email'],
-                    'isLoggedIn' => true,
-                ];
-                $session->set($sessionData);
-                return redirect()->to('/dashboard');
-            } else {
-                $session->setFlashdata('msg', 'Wrong Password');
-                return redirect()->to('/login');
-            }
-        } else {
-            $session->setFlashdata('msg', 'Email not Found');
-            return redirect()->to('/login');
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
+
+        $userModel = new UserModel();
+        $email = $this->request->getPost('email');
+        $password = $this->request->getPost('password');
+
+        $user = $userModel->where('email', $email)->first();
+
+        if (!$user) {
+            return redirect()->back()->withInput()->with('error', 'Email not found');
+        }
+
+        if (!password_verify($password, $user['password'])) {
+            return redirect()->back()->withInput()->with('error', 'Invalid password');
+        }
+
+        // Set session data
+        $sessionData = [
+            'id' => $user['id'],
+            'name' => $user['name'],
+            'email' => $user['email'],
+            'role' => $user['role'],
+            'isLoggedIn' => true,
+        ];
+
+        session()->set($sessionData);
+
+        return redirect()->to(base_url('dashboard'))->with('success', 'Login successful!');
     }
 
     public function register()
     {
-        helper(['form']);
+        // If already logged in, redirect to dashboard
+        if (session()->get('isLoggedIn')) {
+            return redirect()->to(base_url('dashboard'));
+        }
         return view('auth/register');
     }
 
     public function registerPost()
     {
-        helper(['form']);
+
         $rules = [
-            'name'     => 'required|min_length[3]',
-            'email'    => 'required|valid_email|is_unique[users.email]',
-            'password' => 'required|min_length[5]',
-            'confpassword' => 'matches[password]',
+            'name' => [
+                'label' => 'Name',
+                'rules' => 'required|min_length[3]|max_length[255]',
+                'errors' => [
+                    'required' => 'Name is required',
+                    'min_length' => 'Name must be at least 3 characters',
+                ]
+            ],
+            'email' => [
+                'label' => 'Email',
+                'rules' => 'required|valid_email|is_unique[users.email]',
+                'errors' => [
+                    'required' => 'Email is required',
+                    'valid_email' => 'Please enter a valid email',
+                    'is_unique' => 'This email is already registered'
+                ]
+            ],
+            'password' => [
+                'label' => 'Password',
+                'rules' => 'required|min_length[6]',
+                'errors' => [
+                    'required' => 'Password is required',
+                    'min_length' => 'Password must be at least 6 characters'
+                ]
+            ],
+            'role' => [
+                'label' => 'Role',
+                'rules' => 'required|in_list[admin,teacher,student]',
+                'errors' => [
+                    'required' => 'Role is required',
+                    'in_list' => 'Invalid role selected'
+                ]
+            ]
         ];
 
         if (!$this->validate($rules)) {
-            return view('auth/register', [
-                'validation' => $this->validator
-            ]);
+            $validation = \Config\Services::validation();
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
-        $model = new UserModel();
+        $userModel = new UserModel();
 
-        $model->save([
-            'name'     => $this->request->getVar('name'),
-            'email'    => $this->request->getVar('email'),
-            'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
-        ]);
+        $data = [
+            'name' => $this->request->getPost('name'),
+            'email' => $this->request->getPost('email'),
+            'password' => $this->request->getPost('password'), // Will be hashed by model
+            'role' => $this->request->getPost('role'),
+        ];
 
-        return redirect()->to('/login')->with('success', 'Account created successfully.');
+        try {
+            if ($userModel->insert($data)) {
+                $userId = $userModel->getInsertID();
+                $user = $userModel->find($userId);
+
+                // Auto login after registration
+                $sessionData = [
+                    'id' => $user['id'],
+                    'name' => $user['name'],
+                    'email' => $user['email'],
+                    'role' => $user['role'],
+                    'isLoggedIn' => true,
+                ];
+
+                session()->set($sessionData);
+
+                return redirect()->to(base_url('dashboard'))->with('success', 'Registration successful!');
+            } else {
+                return redirect()->back()->withInput()->with('error', 'Registration failed. Please try again.');
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Registration error: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
     }
 
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/login');
+        return redirect()->to(base_url('login'))->with('success', 'Logged out successfully');
     }
 }
