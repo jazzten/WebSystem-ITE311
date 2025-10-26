@@ -17,6 +17,22 @@ $routes->get('register', 'Auth::register');
 $routes->post('register', 'Auth::registerPost');
 $routes->get('logout', 'Auth::logout');
 
-$routes->get('dashboard', 'Dashboard::index');
+// Dashboard Routes (Protected by AuthFilter)
+$routes->group('dashboard', ['filter' => 'auth'], function($routes) {
+    // Main Dashboard
+    $routes->get('/', 'Dashboard::index');
+
+    // Admin Routes
+    $routes->get('manage-users', 'Dashboard::manageUsers');
+    $routes->get('reports', 'Dashboard::reports');
+    $routes->post('delete-user/(:num)', 'Dashboard::deleteUser/$1');
+
+    // Teacher Routes
+    $routes->get('my-classes', 'Dashboard::myClasses');
+
+    // Student Routes
+    $routes->get('my-courses', 'Dashboard::myCourses');
+    $routes->get('my-grades', 'Dashboard::myGrades');
+});
 
 
