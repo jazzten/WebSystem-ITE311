@@ -98,39 +98,75 @@ class Materials extends Controller
         }
 
         try {
-            // Create uploads directory if it doesn't exist
-            $uploadPath = WRITEPATH . 'uploads/materials/';
+            // ✅ Use WRITEPATH constant for consistency
+            $uploadPath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . 'materials' . DIRECTORY_SEPARATOR;
+            
+            // ✅ Ensure directory exists with proper permissions
             if (!is_dir($uploadPath)) {
-                mkdir($uploadPath, 0755, true);
+                if (!mkdir($uploadPath, 0777, true)) {
+                    log_message('error', 'Failed to create directory: ' . $uploadPath);
+                    return redirect()->back()->with('error', 'Failed to create upload directory');
+                }
+                chmod($uploadPath, 0777);
             }
 
-            // Generate unique filename
-            $newName = $file->getRandomName();
-            
-            // Move file to upload directory
-            $file->move($uploadPath, $newName);
+            // ✅ Check if directory is writable
+            if (!is_writable($uploadPath)) {
+                @chmod($uploadPath, 0777);
+                if (!is_writable($uploadPath)) {
+                    log_message('error', 'Upload directory not writable: ' . $uploadPath);
+                    return redirect()->back()->with('error', 'Upload directory is not writable');
+                }
+            }
 
-            // Save to database
+            // Generate unique filename with timestamp
+            $originalName = $file->getClientName();
+            $extension = $file->getClientExtension();
+            $newName = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '_', pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $extension;
+            
+            log_message('info', 'Attempting to upload file to: ' . $uploadPath . $newName);
+            
+            // ✅ Move file with error handling
+            if (!$file->move($uploadPath, $newName)) {
+                $error = $file->getErrorString() . ' (' . $file->getError() . ')';
+                log_message('error', 'File move failed: ' . $error);
+                return redirect()->back()->with('error', 'Failed to move uploaded file: ' . $error);
+            }
+
+            // ✅ Verify file was actually moved
+            $fullPath = $uploadPath . $newName;
+            if (!file_exists($fullPath)) {
+                log_message('error', 'File not found after move: ' . $fullPath);
+                return redirect()->back()->with('error', 'File upload verification failed');
+            }
+
+            log_message('info', 'File successfully uploaded to: ' . $fullPath);
+
+            // ✅ Save to database with ABSOLUTE path
             $materialData = [
                 'course_id' => $courseId,
-                'file_name' => $file->getClientName(),
-                'file_path' => $uploadPath . $newName,
+                'file_name' => $originalName,
+                'file_path' => $fullPath, // Store absolute path
+                'created_at' => date('Y-m-d H:i:s')
             ];
 
             $insertId = $this->materialModel->insertMaterial($materialData);
 
             if ($insertId) {
+                log_message('info', 'Material record saved to database. ID: ' . $insertId);
                 return redirect()->to(base_url('materials/upload/' . $courseId))
-                    ->with('success', 'Material uploaded successfully!');
+                    ->with('success', 'Material uploaded successfully! File: ' . $originalName);
             } else {
                 // Delete uploaded file if database insert fails
-                if (file_exists($uploadPath . $newName)) {
-                    unlink($uploadPath . $newName);
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                    log_message('error', 'Database insert failed, file deleted: ' . $fullPath);
                 }
                 return redirect()->back()->with('error', 'Failed to save material to database');
             }
         } catch (\Exception $e) {
             log_message('error', 'Upload Error: ' . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
             return redirect()->back()->with('error', 'An error occurred during upload: ' . $e->getMessage());
         }
     }
@@ -159,9 +195,18 @@ class Materials extends Controller
         }
 
         try {
+            // ✅ Resolve the file path properly
+            $filePath = $this->resolveFilePath($material['file_path']);
+            
             // Delete file from filesystem
-            if (file_exists($material['file_path'])) {
-                unlink($material['file_path']);
+            if (file_exists($filePath)) {
+                if (unlink($filePath)) {
+                    log_message('info', 'File deleted: ' . $filePath);
+                } else {
+                    log_message('warning', 'Failed to delete file: ' . $filePath);
+                }
+            } else {
+                log_message('warning', 'File not found for deletion: ' . $filePath);
             }
 
             // Delete from database
@@ -169,7 +214,7 @@ class Materials extends Controller
                 return redirect()->to(base_url('materials/upload/' . $material['course_id']))
                     ->with('success', 'Material deleted successfully!');
             } else {
-                return redirect()->back()->with('error', 'Failed to delete material');
+                return redirect()->back()->with('error', 'Failed to delete material from database');
             }
         } catch (\Exception $e) {
             log_message('error', 'Delete Error: ' . $e->getMessage());
@@ -209,14 +254,31 @@ class Materials extends Controller
             }
         }
 
+        // ✅ Resolve the file path properly
+        $filePath = $this->resolveFilePath($material['file_path']);
+
         // Check if file exists
-        if (!file_exists($material['file_path'])) {
-            log_message('error', 'File not found: ' . $material['file_path']);
-            return redirect()->back()->with('error', 'File not found on server');
+        if (!file_exists($filePath)) {
+            log_message('error', 'File not found for download: ' . $filePath);
+            log_message('error', 'Original path from DB: ' . $material['file_path']);
+            return redirect()->back()->with('error', 'File not found on server. Please contact administrator.');
         }
 
-        // Force download
-        return $this->response->download($material['file_path'], null)->setFileName($material['file_name']);
+        // ✅ Check if file is readable
+        if (!is_readable($filePath)) {
+            log_message('error', 'File not readable: ' . $filePath);
+            return redirect()->back()->with('error', 'File cannot be read. Please check permissions.');
+        }
+
+        log_message('info', 'User ' . $userId . ' downloading file: ' . $filePath);
+
+        // ✅ Force download with proper error handling
+        try {
+            return $this->response->download($filePath, null)->setFileName($material['file_name']);
+        } catch (\Exception $e) {
+            log_message('error', 'Download failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to download file: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -259,5 +321,45 @@ class Materials extends Controller
         ];
 
         return view('materials/view', $data);
+    }
+
+    /**
+     * ✅ Helper method to resolve file paths
+     * Handles both absolute paths and relative paths
+     * 
+     * @param string $path
+     * @return string
+     */
+    private function resolveFilePath($path)
+    {
+        // If path is already absolute and exists, return it
+        if (file_exists($path)) {
+            return $path;
+        }
+
+        // Try with WRITEPATH
+        $writePath = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . 'materials' . DIRECTORY_SEPARATOR;
+        
+        // If path contains full server path, extract just the filename
+        $filename = basename($path);
+        $resolvedPath = $writePath . $filename;
+        
+        if (file_exists($resolvedPath)) {
+            return $resolvedPath;
+        }
+
+        // Try treating path as relative to WRITEPATH
+        if (strpos($path, 'writable') !== false) {
+            // Extract path after 'writable'
+            $relativePath = substr($path, strpos($path, 'writable') + 9);
+            $resolvedPath = WRITEPATH . ltrim($relativePath, '/\\');
+            
+            if (file_exists($resolvedPath)) {
+                return $resolvedPath;
+            }
+        }
+
+        // Return original path as fallback
+        return $path;
     }
 }
