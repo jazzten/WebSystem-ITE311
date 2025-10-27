@@ -10,6 +10,7 @@ $routes->get('/about', 'Home::about');
 $routes->get('/contact', 'Home::contact');
 
 
+// Authentication Routes
 $routes->get('/', 'Auth::login');
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::loginPost');
@@ -35,4 +36,9 @@ $routes->group('dashboard', ['filter' => 'auth'], function($routes) {
     $routes->get('my-grades', 'Dashboard::myGrades');
 });
 
+// ✅ Course Enrollment Routes (Protected by AuthFilter)
+$routes->group('course', ['filter' => 'auth'], function($routes) {
+    $routes->post('enroll', 'Course::enroll');
+    $routes->post('unenroll', 'Course::unenroll');
+});
 

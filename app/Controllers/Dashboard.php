@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\EnrollmentModel;
+use App\Models\CourseModel;
 use CodeIgniter\Controller;
 
 class Dashboard extends Controller
@@ -66,7 +68,18 @@ class Dashboard extends Controller
 
     private function studentDashboard($data)
     {
-        $data['enrolledCourses'] = 5; // Mock data - replace with actual course model
+        // ✅ FIXED: Load enrollment and course models
+        $enrollmentModel = new EnrollmentModel();
+        $courseModel = new CourseModel();
+        
+        $userId = session()->get('id');
+        
+        // Get enrolled courses
+        $data['enrolledCourses'] = $enrollmentModel->getUserEnrollments($userId);
+        
+        // Get available courses (not yet enrolled)
+        $data['availableCourses'] = $courseModel->getAvailableCoursesForStudent($userId);
+        
         return view('dashboard/student', $data);
     }
 
@@ -85,7 +98,7 @@ class Dashboard extends Controller
         return view('dashboard/admin_users', $data);
     }
 
-    // Admin: Reports Page
+
     public function reports()
     {
         if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
@@ -103,7 +116,7 @@ class Dashboard extends Controller
         return view('dashboard/admin_reports', $data);
     }
 
-    // Teacher: My Classes Page
+
     public function myClasses()
     {
         if (!session()->get('isLoggedIn') || session()->get('role') !== 'teacher') {
@@ -114,7 +127,7 @@ class Dashboard extends Controller
             'name' => session()->get('name'),
             'role' => session()->get('role'),
         ];
-        // Mock data - replace with actual class model
+
         $data['classes'] = [
             ['id' => 1, 'name' => 'Mathematics 101', 'schedule' => 'Mon/Wed 9:00 AM', 'students' => 25],
             ['id' => 2, 'name' => 'Physics 201', 'schedule' => 'Tue/Thu 11:00 AM', 'students' => 30],
@@ -123,7 +136,7 @@ class Dashboard extends Controller
         return view('dashboard/teacher_classes', $data);
     }
 
-    // Student: My Courses Page
+
     public function myCourses()
     {
         if (!session()->get('isLoggedIn') || session()->get('role') !== 'student') {
@@ -134,17 +147,17 @@ class Dashboard extends Controller
             'name' => session()->get('name'),
             'role' => session()->get('role'),
         ];
-        // Mock data - replace with actual enrollment model
+
         $data['courses'] = [
             ['id' => 1, 'name' => 'Mathematics 101', 'teacher' => 'Dr. Smith', 'progress' => 75],
-            ['id' => 2, 'name' => 'Physics 201', 'teacher' => 'Prof. Johnson', 'progress' => 60],
-            ['id' => 3, 'name' => 'Chemistry 101', 'teacher' => 'Dr. Williams', 'progress' => 85],
-            ['id' => 4, 'name' => 'Biology 101', 'teacher' => 'Prof. Brown', 'progress' => 50],
+            ['id' => 2, 'name' => 'Physics 221', 'teacher' => 'Prof. Nabuntoran', 'progress' => 60],
+            ['id' => 3, 'name' => 'Object-Oriented Programming 331', 'teacher' => 'Prof. Wiggy', 'progress' => 85],
+            ['id' => 4, 'name' => 'Database Management Systems 301', 'teacher' => 'Prof. Oscar', 'progress' => 50],
         ];
         return view('dashboard/student_courses', $data);
     }
 
-    // Student: My Grades Page
+
     public function myGrades()
     {
         if (!session()->get('isLoggedIn') || session()->get('role') !== 'student') {
@@ -155,7 +168,7 @@ class Dashboard extends Controller
             'name' => session()->get('name'),
             'role' => session()->get('role'),
         ];
-        // Mock data - replace with actual grades model
+
         $data['grades'] = [
             ['course' => 'Mathematics 101', 'assignment' => 'Midterm Exam', 'grade' => 'A', 'score' => 92],
             ['course' => 'Physics 201', 'assignment' => 'Lab Report 1', 'grade' => 'B+', 'score' => 87],
@@ -165,7 +178,7 @@ class Dashboard extends Controller
         return view('dashboard/student_grades', $data);
     }
 
-    // Admin: Delete User (AJAX)
+
     public function deleteUser($id)
     {
         if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
