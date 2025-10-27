@@ -4,24 +4,24 @@
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         min-height: 100vh;
     }
-    
+
     .top-nav {
         background: rgba(30, 41, 59, 0.95);
         padding: 1rem 0;
         margin-bottom: 2rem;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    
+
     .brand-section {
         display: flex;
         align-items: center;
         gap: 1rem;
     }
-    
+
     .brand-icon {
         font-size: 2rem;
     }
-    
+
     .nav-buttons .btn {
         margin-left: 0.5rem;
     }
@@ -38,7 +38,7 @@
                     <small class="text-muted">Hello, <?= esc($username) ?> (<?= esc(ucfirst($role)) ?>)</small>
                 </div>
             </div>
-            
+
             <?php if ($role === 'admin'): ?>
                 <div class="nav-buttons">
                     <a href="<?= base_url('admin/users') ?>" class="btn btn-outline-light">

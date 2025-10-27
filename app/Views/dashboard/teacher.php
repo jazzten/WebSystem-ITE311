@@ -1,3 +1,6 @@
+Views/dashboard/Teacher.php
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,9 +9,9 @@
     <title>Teacher Dashboard - LMS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    </head>
+</head>
 
-    <body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen">
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen">
     <!-- Header -->
     <header class="bg-gradient-to-r from-slate-800 to-slate-900 shadow-2xl border-b border-purple-500/20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -27,6 +30,12 @@
                     <a href="<?= base_url('dashboard/my-classes') ?>" class="text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-all">
                         <i class="fas fa-chalkboard mr-2"></i>My Classes
                     </a>
+
+                    <!-- ✅ NEW: Course Materials Link -->
+                    <a href="<?= base_url('dashboard/manage-courses') ?>" class="text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-all">
+                        <i class="fas fa-folder mr-2"></i>Course Materials
+                    </a>
+
                     <a href="<?= base_url('logout') ?>" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-all transform hover:scale-105">
                         <i class="fas fa-sign-out-alt"></i><span>Logout</span>
                     </a>
@@ -117,3 +126,4 @@
     </script>
 </body>
 </html>
+

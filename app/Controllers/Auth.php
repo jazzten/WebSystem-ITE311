@@ -163,3 +163,4 @@ class Auth extends Controller
         return redirect()->to(base_url('login'))->with('success', 'Logged out successfully');
     }
 }
+

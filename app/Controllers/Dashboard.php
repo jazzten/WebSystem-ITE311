@@ -194,4 +194,38 @@ class Dashboard extends Controller
             return $this->response->setJSON(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
+    // ============================================
+    // ✅ ADDED METHOD: Manage Courses (Admin/Teacher)
+    // ============================================
+    public function manageCourses()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'Please login first');
+        }
+
+        $role = session()->get('role');
+        if ($role !== 'admin' && $role !== 'teacher') {
+            return redirect()->to('/dashboard')->with('error', 'Unauthorized access');
+        }
+
+        helper('form');
+        $courseModel = new \App\Models\CourseModel();
+
+        $data['user'] = [
+            'name' => session()->get('name'),
+            'role' => session()->get('role'),
+        ];
+
+        // For teachers, show only their courses
+        if ($role === 'teacher') {
+            $data['courses'] = $courseModel->where('teacher_id', session()->get('id'))->findAll();
+        } else {
+            // For admins, show all courses
+            $data['courses'] = $courseModel->getAllCoursesWithTeachers();
+        }
+
+        return view('dashboard/manage_courses', $data);
+    }
 }
+

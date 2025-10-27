@@ -40,7 +40,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-2xl font-bold text-white mb-2">My Classes</h2>
-                    <p class="text-purple-300">Manage your teaching schedule</p>
+                    <p class="text-purple-300">Manage your teaching schedule and materials</p>
                 </div>
                 <button onclick="addClass()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all">
                     <i class="fas fa-plus mr-2"></i>Add Class
@@ -69,13 +69,16 @@
                         <span class="text-sm"><?= esc($class['students']) ?> Students</span>
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="viewClass(<?= $class['id'] ?>)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all text-sm">
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="viewClass(<?= $class['id'] ?>)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-all text-sm">
                         <i class="fas fa-eye mr-1"></i>View
                     </button>
-                    <button onclick="editClass(<?= $class['id'] ?>)" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-all text-sm">
+                    <button onclick="editClass(<?= $class['id'] ?>)" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg transition-all text-sm">
                         <i class="fas fa-edit mr-1"></i>Edit
                     </button>
+                    <a href="<?= base_url('materials/upload/' . $class['id']) ?>" class="col-span-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-all text-sm text-center">
+                        <i class="fas fa-folder mr-1"></i>Manage Materials
+                    </a>
                 </div>
             </div>
             <?php endforeach; ?>

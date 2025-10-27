@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,6 +29,12 @@
                     <a href="<?= base_url('dashboard/reports') ?>" class="text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-all">
                         <i class="fas fa-chart-bar mr-2"></i>Reports
                     </a>
+
+                    <!-- ✅ Added Manage Courses Link -->
+                    <a href="<?= base_url('dashboard/manage-courses') ?>" class="text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-all">
+                        <i class="fas fa-book mr-2"></i>Manage Courses
+                    </a>
+
                     <a href="<?= base_url('logout') ?>" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-all transform hover:scale-105">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
@@ -132,3 +137,4 @@
     </main>
 </body>
 </html>
+
