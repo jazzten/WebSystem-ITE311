@@ -36,6 +36,9 @@ Views/dashboard/Teacher.php
                         <i class="fas fa-folder mr-2"></i>Course Materials
                     </a>
 
+                    <!-- ✅ ADD NOTIFICATION BELL HERE -->
+                        <?php include(APPPATH . 'Views/includes/notification_bell.php'); ?>
+
                     <a href="<?= base_url('logout') ?>" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-all transform hover:scale-105">
                         <i class="fas fa-sign-out-alt"></i><span>Logout</span>
                     </a>

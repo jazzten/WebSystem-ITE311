@@ -10,7 +10,7 @@ $routes->get('/about', 'Home::about');
 $routes->get('/contact', 'Home::contact');
 
 
-
+// Authentication Routes
 $routes->get('/', 'Auth::login');
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::loginPost');
@@ -35,7 +35,7 @@ $routes->group('dashboard', ['filter' => 'auth'], function($routes) {
     $routes->get('my-courses', 'Dashboard::myCourses');
     $routes->get('my-grades', 'Dashboard::myGrades');
 
-    // ✅ NEW: Manage Courses (Admin/Teacher)
+    // Manage Courses (Admin/Teacher)
     $routes->get('manage-courses', 'Dashboard::manageCourses');
 });
 
@@ -45,9 +45,7 @@ $routes->group('course', ['filter' => 'auth'], function($routes) {
     $routes->post('unenroll', 'Course::unenroll');
 });
 
-// ============================================
-// ✅ NEW ROUTES - ADD THESE TO YOUR routes.php
-// ============================================
+
 
 // Materials Routes (Protected by AuthFilter)
 $routes->group('materials', ['filter' => 'auth'], function($routes) {
@@ -64,5 +62,10 @@ $routes->group('materials', ['filter' => 'auth'], function($routes) {
     // Students: View course materials
     $routes->get('view/(:num)', 'Materials::view/$1');
 });
+
+// ✅ Notification Routes (MUST be outside any group)
+$routes->get('notifications', 'Notifications::get', ['filter' => 'auth']);
+$routes->post('notifications/mark_read/(:num)', 'Notifications::mark_as_read/$1', ['filter' => 'auth']);
+$routes->post('notifications/mark_all_read', 'Notifications::mark_all_as_read', ['filter' => 'auth']);
 
 
